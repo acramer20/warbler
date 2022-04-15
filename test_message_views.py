@@ -2,7 +2,7 @@
 
 # run these tests like:
 #
-#    FLASK_ENV=production python -m unittest test_message_views.py
+#    FLASK_ENV=production python3 -m unittest test_message_views.py
 
 
 import os
@@ -48,6 +48,8 @@ class MessageViewTestCase(TestCase):
                                     email="test@test.com",
                                     password="testuser",
                                     image_url=None)
+        self.testuser_id = 1234
+        self.testuser.id = self.testuser_id
 
         db.session.commit()
 
@@ -71,3 +73,79 @@ class MessageViewTestCase(TestCase):
 
             msg = Message.query.one()
             self.assertEqual(msg.text, "Hello")
+
+    def test_add_no_session(self):
+        with self.client as c:
+            resp = c.post("/messages/new", data={"text": "Hello"}, follow_redirects=True)
+            self.assertEqual(resp.status_code, 200)
+            self.assertIn("Access unauthorized", str(resp.data))
+
+    def test_delete_msg(self):
+        m = Message(
+            id = 2345,
+            text="a little testywesty",
+            user_id=self.testuser_id
+        )
+        db.session.add(m)
+        db.session.commit()
+
+        with self.client as c:
+            with c.session_transaction() as sess:
+                sess[CURR_USER_KEY] = self.testuser.id
+
+            resp = c.post("/messages/2345/delete", follow_redirects=True)
+            self.assertEqual(resp.status_code, 200)
+
+            m = Message.query.get(2345)
+            self.assertIsNone(m)
+
+    def test_delete_unauthorized(self):
+        u2 = User.signup(username="notAuthorizedUser",
+                                    email="testy@test.com",
+                                    password="testuser2",
+                                    image_url=None)
+        u2.id = 9988
+        
+        
+        m = Message(
+            id = 3456,
+            text="another little test",
+            user_id=self.testuser_id
+        )
+
+        db.session.add_all([u2, m])
+        db.session.commit()
+
+        with self.client as c:
+            with c.session_transaction() as sess:
+                sess[CURR_USER_KEY] = 9988
+        
+            resp = c.post("/messages/3456/delete", follow_redirects=True)
+            self.assertEqual(resp.status_code, 200)
+            self.assertIn("Access unauthorized", str(resp.data))
+
+            m = Message.query.get(3456)
+            self.assertIsNotNone(m)
+
+    def test_delete_not_logged_in(self):
+        m = Message(
+            id = 3456,
+            text="another little test",
+            user_id=self.testuser_id
+        )
+        db.session.add(m)
+        db.session.commit()
+
+        with self.client as c:
+            resp = c.post("/messages/3456/delete", follow_redirects=True)
+            self.assertEqual(resp.status_code, 200)
+            self.assertIn("Access unauthorized", str(resp.data))
+
+            m = Message.query.get(3456)
+            self.assertIsNotNone(m)
+
+
+
+
+    
+
