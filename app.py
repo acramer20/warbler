@@ -12,7 +12,7 @@ CURR_USER_KEY = "curr_user"
 
 app = Flask(__name__)
 # if __name__ == "__main__":
-app.run(debug=True)
+#     app.run(debug=True)
 
 
 # Get DB_URI from environ variable (useful for production/testing) or,
@@ -273,8 +273,6 @@ def edit_user():
     
     return render_template('users/edit.html', form=form, user_id=user.id)
 
-
-    
 
 @app.route('/users/profile', methods=["GET", "POST"])
 def profile():

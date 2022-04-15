@@ -51,7 +51,8 @@
               <span class="text-muted">{{ msg.timestamp.strftime('%d %B %Y') }}</span>
               <p>{{ msg.text }}</p>
             </div>
-            <form method="POST" action="/messages/{{msg.id}}/like" id="messages-like">
+            <div>
+            <form method="POST" action="/messages/{{ msg.id }}/like" class="messages-like">
               <button class="
                 btn 
                 btn-sm 
@@ -60,6 +61,7 @@
                 <i class="fa fa-heart"></i> 
               </button>
             </form>
+            </div>
           </li>
         {% endfor %}
       </ul>

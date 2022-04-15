@@ -1,7 +1,7 @@
 {% extends 'users/detail.html' %}
 
 {% block user_details %}
-<div class="col-sm-9">
+  <div class="col-sm-9">
     <div class="row">
         <ul class="list-group" id="messages">
           {% for msg in likes %}
@@ -16,11 +16,11 @@
                 <p>{{ msg.text }}</p>
               </div>
               {% if user.id == g.user.id %}
-              <form method="POST" action="/messages/{{msg.id}}/like" id="messages-like">
+              <form method="POST" action="/messages/{{ msg.id }}/like" class="messages-like">
                 <button class="
                   btn 
                   btn-sm 
-                  {{'btn-primary' if msg.id in likes else 'btn-secondary'}}"
+                  {{'btn-primary'}}"
                 >
                   <i class="fa fa-heart"></i> 
                 </button>
@@ -31,6 +31,6 @@
         </ul>
       </div>
     </div>
-</div>
+  </div>
 
-{%endblock%}
+{% endblock %}
